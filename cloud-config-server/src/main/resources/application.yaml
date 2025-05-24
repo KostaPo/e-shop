@@ -1,0 +1,20 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: cloud-config-server
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when_authorized
+      cache:
+        time-to-live: 10s

@@ -1,0 +1,22 @@
+# Build artifacts
+**/target/
+**/build/
+**/out/
+
+# IDE files
+**/.idea/
+**/*.iml
+**/.settings/
+**/.classpath
+**/.project
+
+# Логи и временные файлы
+**/*.log
+**/*.tmp
+
+# Системные файлы
+.DS_Store
+
+config/
+logs/
+.env

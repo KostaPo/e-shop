@@ -1,0 +1,15 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  cloud:
+    config:
+      server:
+        git:
+          order: 2
+          uri: ${GIT_URI}
+          username: ${GIT_USERNAME}
+          password: ${GIT_PASSWORD}
+          clone-on-start: true
+          default-label: main
+          search-paths:
+            - '{application}/{profile}'

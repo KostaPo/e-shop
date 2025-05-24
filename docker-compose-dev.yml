@@ -1,0 +1,98 @@
+services:
+  cloud-config-server:
+    container_name: ConfigServer
+    build:
+      context: .
+      dockerfile: /cloud-config-server/Dockerfile
+    ports:
+      - "8888:8888/tcp"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://cloud-config-server:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    env_file:
+      - .env
+    environment:
+      EUREKA_HOST: cloud-eureka-server
+      VAULT_HOST: vault
+      GIT_URI: ${GIT_URI}
+      GIT_USERNAME: ${GIT_USERNAME}
+      GIT_PASSWORD: ${GIT_PASSWORD}
+      SPRING_PROFILES_ACTIVE: vault, git
+    restart: unless-stopped
+    depends_on:
+      - vault
+      - cloud-eureka-server
+
+  vault:
+    image: hashicorp/vault:latest
+    container_name: Vault
+    ports:
+      - "8200:8200"
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://vault:8200/v1/sys/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_ROOT_TOKEN}
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_TOKEN: ${VAULT_ROOT_TOKEN}
+      VAULT_ADDR: "http://0.0.0.0:8200"
+    cap_add:
+      - IPC_LOCK
+
+  cloud-eureka-server:
+    container_name: EurekaServer
+    build:
+      context: .
+      dockerfile: /cloud-eureka-server/Dockerfile
+    ports:
+      - "8761:8761/tcp"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://cloud-eureka-server:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  keycloak_db:
+    image: postgres:15
+    container_name: keycloak_db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - keycloak_net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak_db
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME: localhost
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "9090:8080"
+    depends_on:
+      - keycloak_db
+    networks:
+      - keycloak_net
+
+volumes:
+  postgres_data:
+
+networks:
+  keycloak_net:

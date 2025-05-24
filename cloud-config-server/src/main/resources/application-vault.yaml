@@ -1,0 +1,16 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  cloud:
+    config:
+      server:
+        vault:
+          order: 1
+          host: ${VAULT_HOST:localhost}
+          port: 8200
+          scheme: http
+          token: ${VAULT_ROOT_TOKEN}
+          backend: secret
+          kv-version: 2
+          profileSeparator: /
+          skip-ssl-validation: true

@@ -1,0 +1,18 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: app-core
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      name: app-core
+      fail-fast: true
+      discovery:
+        service-id: cloud-config-server
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
+
