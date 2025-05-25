@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping({"api/v2/core"})
+@RequestMapping({"api/v1/core"})
 public class TestController {
 
     private final UserRepository repository;

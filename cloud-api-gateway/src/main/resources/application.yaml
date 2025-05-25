@@ -8,10 +8,11 @@ spring:
     gateway:
       routes:
         - id: test
-          uri: http://localhost:8081
+          uri: lb://app-core
           predicates:
-            - Path=/api/v2/core/test
-            - Method=GET
+            - Path=/api/v1/core/**
+    loadbalancer:
+      configurations: default  # "zone-aware" по гео зонам
 
 eureka:
   client:
